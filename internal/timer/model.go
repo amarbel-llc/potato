@@ -28,6 +28,8 @@ var (
 type Model struct {
 	timer    timer.Model
 	duration time.Duration
+	width    int
+	height   int
 }
 
 func NewModel(duration time.Duration) Model {
@@ -51,6 +53,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case timer.TimeoutMsg:
 		return m, tea.Quit
 
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
 	case tea.KeyMsg:
 		// Ignore all key input — terminal is locked during break
 		return m, nil
@@ -70,16 +77,19 @@ func (m Model) View() string {
 		style = criticalStyle
 	}
 
+	centeredTitle := lipgloss.PlaceHorizontal(m.width, lipgloss.Center, title)
+	centeredTime := lipgloss.PlaceHorizontal(m.width, lipgloss.Center, style.Render(bigTime))
+
 	content := lipgloss.JoinVertical(
-		lipgloss.Center,
-		title,
+		lipgloss.Left,
+		centeredTitle,
 		"",
-		style.Render(bigTime),
+		centeredTime,
 	)
 
 	return lipgloss.Place(
-		lipgloss.Width(content)+4,
-		lipgloss.Height(content)+2,
+		m.width,
+		m.height,
 		lipgloss.Center,
 		lipgloss.Center,
 		content,
