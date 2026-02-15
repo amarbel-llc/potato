@@ -1,7 +1,6 @@
 # potato
 
-default:
-    @just --list
+default: build-gomod2nix build
 
 # Build the binary
 build:
